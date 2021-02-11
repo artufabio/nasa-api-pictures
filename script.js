@@ -11,6 +11,7 @@ const apiKey = 'DEMO_KEY';
 const apiUrl = `https://api.nasa.gov/planetary/apod?api_key=${apiKey}&count=${count}`;
 
 let resultsArray;
+let favourites = {};
 
 function updateDOM() {
     resultsArray.forEach((result) => {
@@ -39,6 +40,7 @@ function updateDOM() {
         const saveText = document.createElement('p');
         saveText.classList.add('clickable');
         saveText.textContent = 'Add to Favourites';
+        saveText.setAttribute( 'onclick', `saveFavourite('${result.url}')`);    //we use url as it is a unique value
         // Card Text
         const cardText = document.createElement('p');
         cardText.textContent = result.explanation;
@@ -71,6 +73,22 @@ async function getNasaPicture() {
     } catch (error) {
         console.log(error);
     }
+}
+
+// Add result to Favourites
+function saveFavourite(itemUrl) {
+    // Loop through resultsArray to select Favourite
+    resultsArray.forEach( item => {
+        if (item.url.includes(itemUrl) && !favourites[itemUrl]) {
+            favourites[itemUrl] = item;     //url acts as the object's key, whilst I pass the whole item as object's value 
+            saveConfirmed.hidden = false;
+            setTimeout( () => {
+                saveConfirmed.hidden = true;
+            }, 2000);
+            // Set Favourites in localStorage
+            localStorage.setItem('nasaFavourites', JSON.stringify(favourites)); // in order to be saved in localStorage I have to transform the JS object in a string
+        }
+    })
 }
 
 // On Load
