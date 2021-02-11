@@ -13,9 +13,20 @@ const apiUrl = `https://api.nasa.gov/planetary/apod?api_key=${apiKey}&count=${co
 let resultsArray = [];
 let favourites = {};
 
+function showContent(page) {
+    window.scrollTo({ top: 0, behavior: 'instant'});
+    if (page === 'results') {
+        resultsNav.classList.remove('hidden');
+        favouritesNav.classList.add('hidden');
+    } else {
+        resultsNav.classList.add('hidden');
+        favouritesNav.classList.remove('hidden');
+    }
+    loader.classList.add('hidden');
+}
+
 function createDOMNodes(page) {
     const currentArray = page === 'results' ? resultsArray : Object.values(favourites); //Object.values(favourites) =>in order to use the forEach loop I have to transform the favourites object in an array
-    console.log('curr array', page, currentArray);
     currentArray.forEach((result) => {
         // Card Container
         const card = document.createElement('div');
@@ -41,8 +52,13 @@ function createDOMNodes(page) {
         // Save Text
         const saveText = document.createElement('p');
         saveText.classList.add('clickable');
-        saveText.textContent = 'Add to Favourites';
-        saveText.setAttribute( 'onclick', `saveFavourite('${result.url}')`);    //we use url as it is a unique value
+        if (page === 'results') {
+            saveText.textContent = 'Add to Favourites';
+            saveText.setAttribute( 'onclick', `saveFavourite('${result.url}')`);    //we use url as it is a unique value
+        } else {
+            saveText.textContent = 'Remove from Favourites';
+            saveText.setAttribute( 'onclick', `removeFavourite('${result.url}')`);
+        }
         // Card Text
         const cardText = document.createElement('p');
         cardText.textContent = result.explanation;
@@ -69,17 +85,20 @@ function updateDOM(page) {
     // Get Favourites from localStorage
     if (localStorage.getItem('nasaFavourites')) {
         favourites = JSON.parse(localStorage.getItem('nasaFavourites'));    //transform in a JS object what's saved in localStorage as a string
-        console.log('fav', favourites);
     }
+    imagesContainer.textContent = '';   //reset the imagesContainer in order to build it up updated any time I call the updateDom function. In this way when I remove a favourite it will disappear right away from the UI.
     createDOMNodes(page);
+    showContent(page);
 }
 
 // Get 10 images from NASA API
-async function getNasaPicture() {
+async function getNasaPictures() {
+    // Show loader
+    loader.classList.remove('hidden');
     try {
         const response = await fetch(apiUrl);
         resultsArray = await response.json();
-        updateDOM('favourites');
+        updateDOM('results');
     } catch (error) {
         console.log(error);
     }
@@ -101,5 +120,15 @@ function saveFavourite(itemUrl) {
     })
 }
 
+// Remove item from Favourites
+function removeFavourite(itemUrl) {
+    if (favourites[itemUrl]) {
+        delete favourites[itemUrl];
+        // Update Favourites in localStorage
+        localStorage.setItem('nasaFavourites', JSON.stringify(favourites));
+        updateDOM('favourites');
+    }
+}
+
 // On Load
-getNasaPicture();
+getNasaPictures();

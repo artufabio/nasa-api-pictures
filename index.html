@@ -21,13 +21,13 @@
             <span class="background"></span>
             <!-- Results Nav -->
             <span class="navigation-items" id="resultsNav">
-                <h3 class="clickable">Favorites</h3>
+                <h3 class="clickable" onclick="updateDOM('favourites')">Favorites</h3>
                 <h3>&nbsp;&nbsp;&nbsp;&bull;&nbsp;&nbsp;&nbsp;</h3> <!--non breackable space allows me to add space in the page-->
-                <h3 class="clickable">Load More</h3>
+                <h3 class="clickable" onclick="getNasaPictures()">Load More</h3>
             </span>
             <!-- Favourites Nav -->
             <span class="navigation-items hidden" id="favouritesNav">
-                <h3 class="clickable">Load More NASA Images</h3>
+                <h3 class="clickable" onclick="getNasaPictures()">Load More NASA Images</h3>
             </span>
         </div>
         <!-- Images Container -->
