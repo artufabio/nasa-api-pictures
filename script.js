@@ -10,11 +10,13 @@ const count = 10;
 const apiKey = 'DEMO_KEY';
 const apiUrl = `https://api.nasa.gov/planetary/apod?api_key=${apiKey}&count=${count}`;
 
-let resultsArray;
+let resultsArray = [];
 let favourites = {};
 
-function updateDOM() {
-    resultsArray.forEach((result) => {
+function createDOMNodes(page) {
+    const currentArray = page === 'results' ? resultsArray : Object.values(favourites); //Object.values(favourites) =>in order to use the forEach loop I have to transform the favourites object in an array
+    console.log('curr array', page, currentArray);
+    currentArray.forEach((result) => {
         // Card Container
         const card = document.createElement('div');
         card.classList.add('card');
@@ -63,13 +65,21 @@ function updateDOM() {
     });
 }
 
+function updateDOM(page) {
+    // Get Favourites from localStorage
+    if (localStorage.getItem('nasaFavourites')) {
+        favourites = JSON.parse(localStorage.getItem('nasaFavourites'));    //transform in a JS object what's saved in localStorage as a string
+        console.log('fav', favourites);
+    }
+    createDOMNodes(page);
+}
+
 // Get 10 images from NASA API
 async function getNasaPicture() {
     try {
         const response = await fetch(apiUrl);
         resultsArray = await response.json();
-        console.log(resultsArray);
-        updateDOM();
+        updateDOM('favourites');
     } catch (error) {
         console.log(error);
     }
